@@ -1,0 +1,24 @@
+{
+  "name": "bs-testathon",
+  "version": "1.0.0",
+  "description": "BrowerStack Testathon Challenge",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AutomationSangam/BS-Testathon.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AutomationSangam/BS-Testathon/issues"
+  },
+  "homepage": "https://github.com/AutomationSangam/BS-Testathon#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@types/node": "^24.5.2",
+    "browserstack-node-sdk": "^1.42.7",
+    "dotenv": "^17.2.2"
+  }
+}
