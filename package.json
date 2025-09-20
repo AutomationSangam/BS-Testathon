@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "BrowerStack Testathon Challenge",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test": "playwright test",
+    "browserstack": "browserstack-node-sdk playwright test"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/AutomationSangam/BS-Testathon.git"

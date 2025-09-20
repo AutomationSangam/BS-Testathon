@@ -39,6 +39,16 @@ platforms:
     osVersion: 11
     browserName: playwright-firefox
     browserVersion: latest
+  # - browserName: chrome
+  #   osVersion: 15.0
+  #   deviceName: Samsung Galaxy S25 Ultra
+  # - browserName: Chrome
+  #   os: OS X
+  #   osVersion: Tahoe
+  #   browserVersion: latest
+  # - browserName: safari
+  #   osVersion: 18.6
+  #   deviceName: iPhone 16 Pro Max
 
 # =======================
 # Parallels per Platform
