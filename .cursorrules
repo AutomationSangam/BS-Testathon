@@ -1,0 +1,350 @@
+# Cursor Rules for Playwright Page Object Model
+
+## Page Object Model Guidelines
+
+### 1. Page Class Structure
+For every page in the application, create a dedicated page class following this pattern:
+
+```typescript
+import { Page } from "@playwright/test";
+
+class [PageName]Page {
+  private page: Page;
+
+  constructor(page: Page) {
+    this.page = page;
+  }
+
+  // Element getters (locators)
+  get elementName() {
+    return this.page.locator("selector");
+  }
+
+  // Action methods
+  async performAction() {
+    await this.elementName.click();
+  }
+
+  // Validation methods (return data, no assertions)
+  async getElementText(): Promise<string> {
+    return await this.elementName.textContent() || "";
+  }
+}
+
+export default [PageName]Page;
+```
+
+### 2. File Naming Conventions
+- **Page Objects**: `[pageName].page.ts` (camelCase for file, PascalCase for class)
+- **Test Files**: `[testName].spec.ts`
+- **Location**: All page objects go in `/pages/` directory
+
+Examples:
+- `signIn.page.ts` → `SignInPage`
+- `productListing.page.ts` → `ProductListingPage`
+- `checkout.page.ts` → `CheckoutPage`
+
+### 3. Page Object Structure Rules
+
+#### Element Locators (Getters)
+- Use getter methods for all locators
+- Name getters descriptively based on their purpose
+- Group related elements together
+- Use semantic selectors when possible
+
+```typescript
+// ✅ Good
+get signInButton() {
+  return this.page.getByRole("button", { name: "Sign In" });
+}
+
+get usernameField() {
+  return this.page.locator("#username");
+}
+
+// ❌ Avoid
+get button1() {
+  return this.page.locator("button");
+}
+```
+
+#### Action Methods
+- Methods should be async and start with action verbs
+- One action per method (single responsibility)
+- Include waiting for elements when necessary
+- Handle loading states and spinners
+
+```typescript
+// ✅ Good
+async clickSignInButton() {
+  await this.signInButton.click();
+  await this.spinner.waitFor({ state: "hidden" });
+}
+
+async fillUsername(username: string) {
+  await this.usernameField.fill(username);
+}
+
+async selectFromDropdown(value: string) {
+  await this.dropdown.click();
+  await this.page.getByText(value).click();
+}
+
+// ❌ Avoid
+async doSignIn(username: string, password: string) {
+  // Don't combine multiple actions in one method
+}
+```
+
+#### Data Retrieval Methods
+- Return data for test assertions
+- Never include assertions in page objects
+- Use Promise<T> return types
+- Handle null/undefined cases
+
+```typescript
+// ✅ Good
+async getAllProductNames(): Promise<string[]> {
+  return await this.productElements.allTextContents();
+}
+
+async isElementVisible(): Promise<boolean> {
+  try {
+    await this.element.waitFor({ state: "visible", timeout: 5000 });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ❌ Avoid - No assertions in page objects
+async validateElementIsVisible() {
+  expect(this.element).toBeVisible(); // Don't do this
+}
+```
+
+### 4. Page Object Responsibilities
+
+#### What Page Objects SHOULD do:
+- Define element locators
+- Perform user interactions
+- Wait for elements/loading states
+- Return data for validation
+- Handle page navigation
+- Encapsulate page-specific logic
+
+#### What Page Objects SHOULD NOT do:
+- Contain test assertions (`expect` statements)
+- Contain test data or test logic
+- Have dependencies on other page objects
+- Perform cross-page validations
+
+### 5. Test File Structure
+
+```typescript
+import { test, expect } from "@playwright/test";
+import [PageName]Page from "../pages/[pageName].page";
+
+test.describe("[Feature] Tests", () => {
+  let [pageName]Page: [PageName]Page;
+
+  test.beforeEach(async ({ page }) => {
+    [pageName]Page = new [PageName]Page(page);
+    await page.goto("/path");
+  });
+
+  test("should perform specific action", async ({ page }) => {
+    // Arrange
+    await [pageName]Page.performSetupAction();
+
+    // Act
+    await [pageName]Page.performAction();
+
+    // Assert
+    const result = await [pageName]Page.getResultData();
+    expect(result).toBe(expectedValue);
+  });
+});
+```
+
+### 6. Specific Patterns for Different Page Types
+
+#### Authentication Pages
+```typescript
+class SignInPage {
+  // Form elements
+  get usernameField() { return this.page.locator("#username"); }
+  get passwordField() { return this.page.locator("#password"); }
+  get loginButton() { return this.page.getByRole("button", { name: "Login" }); }
+  
+  // Actions
+  async signInWithCredentials(username: string, password: string) {
+    await this.fillUsername(username);
+    await this.fillPassword(password);
+    await this.clickLoginButton();
+  }
+  
+  // Validation
+  async isLoggedIn(): Promise<boolean> {
+    return await this.logoutButton.isVisible();
+  }
+}
+```
+
+#### Listing/Grid Pages
+```typescript
+class ProductListingPage {
+  // List elements
+  get allProducts() { return this.page.locator(".product-item"); }
+  get productImages() { return this.page.locator(".product-item img"); }
+  
+  // Filter elements
+  get categoryFilter() { return this.page.locator("#category-filter"); }
+  
+  // Actions
+  async applyFilter(filterValue: string) {
+    await this.categoryFilter.selectOption(filterValue);
+    await this.waitForProductsToLoad();
+  }
+  
+  // Data methods
+  async getProductCount(): Promise<number> {
+    return await this.allProducts.count();
+  }
+}
+```
+
+#### Form Pages
+```typescript
+class CheckoutPage {
+  // Form fields
+  get emailField() { return this.page.locator("#email"); }
+  get addressField() { return this.page.locator("#address"); }
+  get submitButton() { return this.page.getByRole("button", { name: "Submit" }); }
+  
+  // Actions
+  async fillCheckoutForm(formData: CheckoutData) {
+    await this.emailField.fill(formData.email);
+    await this.addressField.fill(formData.address);
+  }
+  
+  async submitForm() {
+    await this.submitButton.click();
+    await this.page.waitForURL("**/confirmation");
+  }
+}
+```
+
+### 7. Error Handling and Waiting
+
+```typescript
+// Always handle loading states
+async performActionWithLoading() {
+  await this.actionButton.click();
+  await this.loadingSpinner.waitFor({ state: "hidden" });
+}
+
+// Handle timeouts gracefully
+async isElementPresent(): Promise<boolean> {
+  try {
+    await this.element.waitFor({ timeout: 5000 });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Wait for navigation
+async navigateToPage() {
+  await this.navigationLink.click();
+  await this.page.waitForURL("**/expected-path");
+}
+```
+
+### 8. TypeScript Best Practices
+
+- Use proper typing for return values
+- Define interfaces for complex data structures
+- Use enums for fixed values
+- Import types from "@playwright/test"
+
+```typescript
+interface ProductData {
+  name: string;
+  price: number;
+  image: string;
+}
+
+enum FilterType {
+  CATEGORY = "category",
+  PRICE = "price",
+  BRAND = "brand"
+}
+
+async getProductData(): Promise<ProductData[]> {
+  // Implementation
+}
+```
+
+### 9. Code Organization
+
+```
+/pages/
+  ├── signIn.page.ts
+  ├── productListing.page.ts
+  ├── checkout.page.ts
+  └── common/
+      ├── basePage.ts
+      └── navigation.page.ts
+
+/tests/
+  ├── authentication.spec.ts
+  ├── productFiltering.spec.ts
+  └── checkout.spec.ts
+```
+
+### 10. Mandatory Checklist for New Pages
+
+When creating a new page object, ensure:
+
+- [ ] File follows naming convention: `[pageName].page.ts`
+- [ ] Class follows naming convention: `[PageName]Page`
+- [ ] Contains proper constructor with Page parameter
+- [ ] Uses getters for all element locators
+- [ ] Action methods are async and descriptive
+- [ ] No assertions in page object methods
+- [ ] Includes proper TypeScript typing
+- [ ] Handles loading states and waits
+- [ ] Has corresponding test file
+- [ ] Exports default class
+
+### 11. Test Data Management
+
+- Store all test data in `/testData/` directory
+- Use TypeScript interfaces for type safety
+- Never hardcode credentials or test data in test files
+- Import test data at the top of test files
+
+```typescript
+// ✅ Good - Use test data
+import { credentials } from "../testData/credentials";
+await signInPage.signInWithCredentials(
+  credentials.noimagecreds.username,
+  credentials.noimagecreds.password
+);
+
+// ❌ Avoid - Hardcoded values
+await signInPage.signInWithCredentials("user", "password");
+```
+
+### 12. Common Patterns to Follow
+
+- Use semantic locators (getByRole, getByTestId, getByText) when possible
+- Group related functionality together
+- Keep methods focused and atomic
+- Always return data instead of performing assertions
+- Handle async operations properly
+- Use descriptive names for better maintainability
+- Import test data instead of hardcoding values
+
+This structure ensures consistency, maintainability, and follows Playwright best practices across the entire project.

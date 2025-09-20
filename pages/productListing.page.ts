@@ -1,10 +1,9 @@
 import { Page } from "@playwright/test";
+import BasePage from "./common/basePage";
 
-class ProductListingPage {
-  private page: Page;
-
+class ProductListingPage extends BasePage {
   constructor(page: Page) {
-    this.page = page;
+    super(page);
   }
 
   // Brand filter checkboxes
@@ -37,25 +36,29 @@ class ProductListingPage {
     return this.page.locator("div.spinner");
   }
 
+  get productImages() {
+    return this.page.locator("div.shelf-item img");
+  }
+
   // Methods to apply filters
   async selectAppleFilter() {
     await this.appleFilter.check();
-    await this.spinner.waitFor({ state: "hidden" });
+    await this.waitForSpinnerToHide(); // Using BasePage functionality
   }
 
   async selectSamsungFilter() {
     await this.samsungFilter.check();
-    await this.spinner.waitFor({ state: "hidden" });
+    await this.waitForSpinnerToHide(); // Using BasePage functionality
   }
 
   async selectGoogleFilter() {
     await this.googleFilter.check();
-    await this.spinner.waitFor({ state: "hidden" });
+    await this.waitForSpinnerToHide(); // Using BasePage functionality
   }
 
   async selectOnePlusFilter() {
     await this.onePlusFilter.check();
-    await this.spinner.waitFor({ state: "hidden" });
+    await this.waitForSpinnerToHide(); // Using BasePage functionality
   }
 
   async clearAllFilters() {
@@ -90,6 +93,28 @@ class ProductListingPage {
       'p:has-text("iPhone"), p:has-text("Galaxy"), p:has-text("Pixel"), p:has-text("One Plus")',
       { timeout: 10000 }
     );
+  }
+
+  // Image validation methods
+  async getAllProductImageSources(): Promise<string[]> {
+    const images = await this.productImages.all();
+    const srcValues = await Promise.all(
+      images.map(async (img) => {
+        const src = await img.getAttribute("src");
+        return src || "";
+      })
+    );
+    return srcValues;
+  }
+
+  async validateAllImagesHaveNonEmptySource(): Promise<boolean> {
+    const srcValues = await this.getAllProductImageSources();
+    return srcValues.every((src) => src.trim() !== "");
+  }
+
+  async getImagesWithEmptySource(): Promise<number> {
+    const srcValues = await this.getAllProductImageSources();
+    return srcValues.filter((src) => src.trim() === "").length;
   }
 }
 
