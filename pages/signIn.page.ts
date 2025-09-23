@@ -31,6 +31,16 @@ class SignInPage extends BasePage {
     return this.page.locator("#password input");
   }
 
+  get logoutButton() {
+    // Logout link when user is logged in
+    return this.page.getByRole("link", { name: "Logout" });
+  }
+
+  get loggedInUserName() {
+    // The displayed username when logged in (appears in top right)
+    return this.page.locator("span.username");
+  }
+
   // Sign in methods
   async clickSignInButton() {
     await this.signInButton.click();
@@ -84,7 +94,8 @@ class SignInPage extends BasePage {
 
   async isUserLoggedIn(): Promise<boolean> {
     try {
-      await this.page.waitForSelector('text="Logout"', { timeout: 5000 });
+      // Check if logout button is visible
+      await this.logoutButton.waitFor({ state: "visible", timeout: 5000 });
       return true;
     } catch {
       return false;
@@ -93,19 +104,16 @@ class SignInPage extends BasePage {
 
   async getLoggedInUsername(): Promise<string | null> {
     try {
-      const usernameElement = this.page
-        .locator('.username, [data-testid="username"]')
-        .first();
-      return await usernameElement.textContent();
+      return await this.loggedInUserName.textContent();
     } catch {
       return null;
     }
   }
 
   async logout() {
-    const logoutLink = this.page.getByRole("link", { name: "Logout" });
-    if (await logoutLink.isVisible()) {
-      await logoutLink.click();
+    if (await this.logoutButton.isVisible()) {
+      await this.logoutButton.click();
+      await this.waitForSpinnerToHide();
     }
   }
 }

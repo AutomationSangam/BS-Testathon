@@ -29,7 +29,15 @@ class ProductListingPage extends BasePage {
   }
 
   get productCount() {
-    return this.page.locator("text=/\\d+ Product\\(s\\) found\\./");
+    // Product count text shows "25 Product(s) found."
+    return this.page.getByText(/\d+ Product\(s\) found\./);
+  }
+
+  get allProductContainers() {
+    // Each product container has the product title
+    return this.page
+      .locator("div")
+      .filter({ has: this.page.locator("p.shelf-item__title") });
   }
 
   get spinner() {
@@ -38,6 +46,22 @@ class ProductListingPage extends BasePage {
 
   get productImages() {
     return this.page.locator("div.shelf-item img");
+  }
+
+  // Cart-related elements - Based on actual DOM structure
+  get addToCartButtons() {
+    // "Add to cart" elements are generic divs with that text
+    return this.page.getByText("Add to cart");
+  }
+
+  get firstProduct() {
+    // First product has ID="1"
+    return this.page.locator('[id="1"]');
+  }
+
+  get firstProductAddToCartButton() {
+    // "Add to cart" button in first product
+    return this.firstProduct.locator(".shelf-item__buy-btn");
   }
 
   // Methods to apply filters
@@ -89,15 +113,14 @@ class ProductListingPage extends BasePage {
   }
 
   async waitForProductsToLoad() {
-    await this.page.waitForSelector(
-      'p:has-text("iPhone"), p:has-text("Galaxy"), p:has-text("Pixel"), p:has-text("One Plus")',
-      { timeout: 10000 }
-    );
+    // Wait for product titles to be visible
+    await this.page.waitForSelector("p.shelf-item__title", { timeout: 10000 });
   }
 
   // Image validation methods
   async getAllProductImageSources(): Promise<string[]> {
-    const images = await this.productImages.all();
+    // Get all product images from the containers
+    const images = await this.allProductContainers.locator("img").all();
     const srcValues = await Promise.all(
       images.map(async (img) => {
         const src = await img.getAttribute("src");
@@ -115,6 +138,45 @@ class ProductListingPage extends BasePage {
   async getImagesWithEmptySource(): Promise<number> {
     const srcValues = await this.getAllProductImageSources();
     return srcValues.filter((src) => src.trim() === "").length;
+  }
+
+  // Cart interaction methods
+  async addFirstProductToCart() {
+    await this.firstProductAddToCartButton.click();
+    await this.waitForSpinnerToHide();
+  }
+
+  async addProductToCartByIndex(index: number) {
+    // Products have IDs starting from 1, so index 0 = ID "1", index 1 = ID "2", etc.
+    const productId = (index + 1).toString();
+    const product = this.page.locator(`[id="${productId}"]`);
+    const addButton = product.locator(".shelf-item__buy-btn");
+    await addButton.click();
+    await this.waitForSpinnerToHide();
+  }
+
+  async addProductToCartByName(productName: string) {
+    const productElement = this.page.locator("[id]").filter({
+      has: this.page.locator(`p.shelf-item__title:has-text("${productName}")`),
+    });
+    const addButton = productElement.locator(".shelf-item__buy-btn");
+    await addButton.click();
+    await this.waitForSpinnerToHide();
+  }
+
+  async getFirstProductName(): Promise<string> {
+    const firstProductTitle = this.firstProduct
+      .locator("p.shelf-item__title")
+      .first();
+    return (await firstProductTitle.textContent()) || "";
+  }
+
+  async isAddToCartButtonVisible(): Promise<boolean> {
+    try {
+      return await this.firstProductAddToCartButton.isVisible();
+    } catch {
+      return false;
+    }
   }
 }
 
