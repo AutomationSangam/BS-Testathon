@@ -98,8 +98,17 @@ npx playwright test --headed
 # Run specific test file
 npx playwright test tests/example.spec.ts
 
+# Run error handling tests
+npx playwright test tests/errorHandling.spec.ts
+
+# Run cart-specific error tests
+npx playwright test tests/cartErrorHandling.spec.ts
+
 # Run tests with UI mode
 npx playwright test --ui
+
+# Run tests with specific grep pattern
+npx playwright test --grep "should handle"
 ```
 
 ### BrowserStack Execution
@@ -107,7 +116,10 @@ npx playwright test --ui
 Run tests on BrowserStack cloud:
 
 ```bash
-# Run tests on BrowserStack
+# Run tests on BrowserStack (using npm script)
+npm run browserstack
+
+# Run tests on BrowserStack (using SDK directly)
 npx browserstack-node-sdk playwright test
 
 # Run specific test file on BrowserStack
@@ -133,19 +145,29 @@ npx playwright show-report
 
 ```
 BS-Testathon/
-├── pages/                    # Page Object Model (POM) classes
-│   ├── BasePage.ts          # Base page with common functionality
-│   ├── HomePage.ts          # Home page object
-│   └── LoginPage.ts         # Login page object (example)
-├── tests/                    # Main test directory
-│   └── example.spec.ts       # Basic Playwright tests
-├── tests-examples/           # Example test files
-│   └── demo-todo-app.spec.ts # TodoMVC comprehensive test suite
-├── browserstack.yml          # BrowserStack configuration
-├── playwright.config.ts      # Playwright configuration
-├── package.json             # Dependencies and scripts
-├── .env                     # Environment variables (create this)
-└── README.md               # Project documentation
+├── pages/                        # Page Object Model (POM) classes
+│   ├── common/                   # Common page functionality
+│   │   └── basePage.ts          # Base page with common functionality
+│   ├── signIn.page.ts           # Sign in page object
+│   ├── productListing.page.ts   # Product listing page object
+│   └── cart.page.ts             # Cart page object
+├── tests/                        # Main test directory
+│   ├── login.spec.ts            # Authentication tests
+│   ├── brandFilter.spec.ts      # Product filtering tests
+│   ├── imageValidation.spec.ts  # Image loading validation tests
+│   ├── cartPersistence.spec.ts  # Cart persistence bug tests
+│   ├── errorHandling.spec.ts    # Comprehensive error handling tests
+│   ├── cartErrorHandling.spec.ts # Cart-specific error tests
+│   └── favorites.spec.ts        # Favorites functionality tests
+├── testData/                     # Test data management
+│   └── credentials.ts           # User credentials and test data
+├── .github/workflows/            # CI/CD pipeline configuration
+│   └── playwright.yml           # GitHub Actions workflow
+├── browserstack.yml              # BrowserStack configuration
+├── playwright.config.ts          # Playwright configuration
+├── package.json                 # Dependencies and scripts
+├── .env                         # Environment variables (create this)
+└── README.md                   # Project documentation
 ```
 
 ## 📝 Test Examples
@@ -318,6 +340,74 @@ test('search functionality', async ({ page }) => {
 - Trace viewer for detailed debugging
 - Console output with test results
 
+## 📈 Test Management & Observability
+
+### Test Observability Platforms
+
+Enhance your testing workflow with advanced test management and observability tools:
+
+#### **BrowserStack Test Observability**
+- **Dashboard**: [BrowserStack Test Observability](https://automation.browserstack.com/projects/QA+GEEKS/builds/browserstack+build/1?tab=tests&testListView=flat&public_token=da31ba412aa8e57d36723c6414d92678455230a67722a012bc9616dafee8c660)
+- **Features**: 
+  - Test insights and analytics
+  - Flaky test detection
+  - Performance monitoring
+  - Root cause analysis
+  - Test trend analytics
+
+#### **GitHub Actions Integration**
+- **Workflow**: [`.github/workflows/playwright.yml`](.github/workflows/playwright.yml)
+- **Features**:
+  - Automated test execution on PR/push
+  - Test results and artifacts storage
+  - Integration with BrowserStack cloud
+
+#### **Test Management Tools**
+- **Playwright Test Results**: Built-in HTML reporter
+- **Trace Viewer**: Interactive debugging with `npx playwright show-trace`
+- **Test Reports**: Comprehensive test execution reports
+- **Parallel Execution**: Monitor concurrent test runs across platforms
+
+### Key Metrics & KPIs
+
+Track your testing effectiveness with these metrics:
+
+- **Test Coverage**: Monitor code and feature coverage
+- **Test Execution Time**: Track performance across different browsers
+- **Flaky Test Rate**: Identify and fix unreliable tests
+- **Pass/Fail Ratios**: Monitor test stability over time
+- **Cross-Browser Compatibility**: Track issues across different platforms
+
+### Setting up Test Observability
+
+1. **Enable BrowserStack Test Observability**:
+   ```yaml
+   # In browserstack.yml
+   testObservability: true
+   ```
+
+2. **Configure GitHub Actions**:
+   ```yaml
+   # Set environment variable
+   USE_BROWSERSTACK: 'true'  # for BrowserStack execution
+   USE_BROWSERSTACK: 'false' # for local execution
+   ```
+
+3. **Access Test Reports**:
+   - **BrowserStack**: [Automate Dashboard](https://automate.browserstack.com/)
+   - **GitHub Actions**: Check Actions tab in your repository
+   - **Local**: `npx playwright show-report`
+
+### Useful Test Management Links
+
+| Platform | Link | Purpose |
+|----------|------|---------|
+| **BrowserStack Automate** | [Dashboard](https://automate.browserstack.com/dashboard/v2/public-build/WTJySHgrSFUyS1pLU2I4MmVXSm9vNXpVSGtKbjZ0Vkd2Q2xteHQxSGkyMUpOem0wSkQrWjhGb2RzbXd4Ui9RakNkeDllUFJEMlpUTytXeEhINnhUdnc9PS0tdTdpU3ZlUDdRQS9wRkJ6STkxWDNCQT09--5907ac5c1dd1783db215e4aeac52afc1bee1d457) | View test execution results |
+| **BrowserStack Test Observability** | [Observability](https://automation.browserstack.com/projects/QA+GEEKS/builds/browserstack+build/1?tab=tests&testListView=flat&public_token=da31ba412aa8e57d36723c6414d92678455230a67722a012bc9616dafee8c660) | Advanced test analytics |
+| **Test Case Management** | [Folder](https://test-management.browserstack.com/projects/2394314/folder)] | All written test cases |
+| **GitHub Actions** | Repository Actions tab | CI/CD pipeline results |
+| **Test Reports** | Local: `playwright-report/index.html` | Detailed test reports |
+
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -332,10 +422,21 @@ This project is licensed under the ISC License - see the [LICENSE](LICENSE) file
 
 ## 🔗 Useful Links
 
+### Testing Frameworks & Tools
 - [Playwright Documentation](https://playwright.dev/docs/intro)
-- [BrowserStack Automate Documentation](https://www.browserstack.com/docs/automate)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 - [BrowserStack Node SDK](https://github.com/browserstack/browserstack-node-sdk)
+
+### BrowserStack Resources
+- [BrowserStack Automate Documentation](https://www.browserstack.com/docs/automate)
+- [BrowserStack Automate Dashboard](https://automate.browserstack.com/)
+- [BrowserStack Test Observability](https://observability.browserstack.com/)
+- [BrowserStack Local Testing](https://www.browserstack.com/local-testing)
+
+### Test Management & CI/CD
+- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- [Playwright Test Reports](https://playwright.dev/docs/test-reporters)
+- [Playwright Trace Viewer](https://playwright.dev/docs/trace-viewer)
 
 ## 📞 Support
 
