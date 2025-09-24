@@ -11,7 +11,7 @@ accessKey: ${BROWSERSTACK_ACCESS_KEY}
 # ======================
 # The following capabilities are used to set up reporting on BrowserStack:
 # Set 'projectName' to the name of your project. Example, Marketing Website
-projectName: BrowserStack Samples 
+projectName: QA GEEKS
 # Set `buildName` as the name of the job / testsuite being run
 buildName: browserstack build 
 # `buildIdentifier` is a unique id to differentiate every execution that gets appended to
@@ -39,16 +39,16 @@ platforms:
     osVersion: 11
     browserName: playwright-firefox
     browserVersion: latest
-  # - browserName: chrome
-  #   osVersion: 15.0
-  #   deviceName: Samsung Galaxy S25 Ultra
-  # - browserName: Chrome
-  #   os: OS X
-  #   osVersion: Tahoe
-  #   browserVersion: latest
-  # - browserName: safari
-  #   osVersion: 18.6
-  #   deviceName: iPhone 16 Pro Max
+  - browserName: chrome
+    osVersion: 15.0
+    deviceName: Samsung Galaxy S25 Ultra
+  - browserName: Chrome
+    os: OS X
+    osVersion: Tahoe
+    browserVersion: latest
+  - browserName: safari
+    osVersion: 18.6
+    deviceName: iPhone 16 Pro Max
 
 # =======================
 # Parallels per Platform

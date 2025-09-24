@@ -64,6 +64,10 @@ class ProductListingPage extends BasePage {
     return this.firstProduct.locator(".shelf-item__buy-btn");
   }
 
+  get cardCloseIcon() {
+    return this.page.locator("div.float-cart__close-btn");
+  }
+
   // Methods to apply filters
   async selectAppleFilter() {
     await this.appleFilter.check();
