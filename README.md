@@ -404,7 +404,7 @@ Track your testing effectiveness with these metrics:
 |----------|------|---------|
 | **BrowserStack Automate** | [Dashboard](https://automate.browserstack.com/dashboard/v2/public-build/WTJySHgrSFUyS1pLU2I4MmVXSm9vNXpVSGtKbjZ0Vkd2Q2xteHQxSGkyMUpOem0wSkQrWjhGb2RzbXd4Ui9RakNkeDllUFJEMlpUTytXeEhINnhUdnc9PS0tdTdpU3ZlUDdRQS9wRkJ6STkxWDNCQT09--5907ac5c1dd1783db215e4aeac52afc1bee1d457) | View test execution results |
 | **BrowserStack Test Observability** | [Observability](https://automation.browserstack.com/projects/QA+GEEKS/builds/browserstack+build/1?tab=tests&testListView=flat&public_token=da31ba412aa8e57d36723c6414d92678455230a67722a012bc9616dafee8c660) | Advanced test analytics |
-| **Test Case Management** | [Folder](https://test-management.browserstack.com/projects/2394314/folder)] | All written test cases |
+| **Test Case Management** | [Folder](https://test-management.browserstack.com/projects/2394314/folder) | All written test cases |
 | **GitHub Actions** | Repository Actions tab | CI/CD pipeline results |
 | **Test Reports** | Local: `playwright-report/index.html` | Detailed test reports |
 
