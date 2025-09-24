@@ -95,19 +95,6 @@ class FavoritesPage extends BasePage {
     await this.waitForPageLoad();
   }
 
-
-  // Favorite management methods (using MUI heart icon buttons)
-//   async addProductToFavorites(productName: string) {
-//     const productLocator = this.page.locator("p.shelf-item__title").filter({ hasText: productName });
-//     const heartButton = productLocator.locator("button.MuiButtonBase-root.MuiIconButton-root.Button").first();
-    
-//     // Only click if not already favorited (doesn't have "clicked" class)
-//     const isAlreadyFavorited = await this.isProductFavorited(productName);
-//     if (!isAlreadyFavorited) {
-//       await heartButton.click();
-//       await this.waitForSpinnerToHide();
-//     }
-//   }
 async addProductToFavorites(productName: string) {
     const heartButton = this.page.locator(
         `//p[@class='shelf-item__title' and normalize-space()='${productName}']
@@ -121,25 +108,6 @@ async addProductToFavorites(productName: string) {
     }
   }
 
-
-
-//   async removeProductFromFavorites(productName: string) {
-//     // Remove from product listing by clicking heart icon again
-//     const productLocator = this.page.locator("p.shelf-item__title").filter({ hasText: productName });
-//     const heartButton = productLocator.locator("button.MuiButtonBase-root.MuiIconButton-root.Button").first();
-    
-//     // Only click if currently favorited (has "clicked" class)
-//     const isCurrentlyFavorited = await this.isProductFavorited(productName);
-//     if (isCurrentlyFavorited) {
-//       await heartButton.click();
-//       await this.waitForSpinnerToHide();
-//     }
-//   }
-
-
-
-  // Data retrieval methods (return data, no assertions)
-  
   async removeProductFromFavorites(productName: string) {
     const productLocator = this.page.locator(
       `//p[@class='shelf-item__title' and normalize-space()='${productName}']`
@@ -195,32 +163,6 @@ async addProductToFavorites(productName: string) {
     );
   }
 
-//   async isFavoritesPageEmpty(): Promise<boolean> {
-//     try {
-//       const isEmpty = await this.isElementVisible(this.emptyFavoritesMessage);
-//       const itemCount = await this.getFavoriteItemsCount();
-//       return isEmpty || itemCount === 0;
-//     } catch {
-//       return true;
-//     }
-//   }
-
-//   async isProductFavorited(productName: string): Promise<boolean> {
-//   try {
-//     const productLocator = this.page.locator(
-//       `//p[@class='shelf-item__title' and normalize-space()='${productName}']`
-//     );
-//     const heartButton = productLocator
-//       .locator("xpath=ancestor::div[@class='shelf-item']//button[contains(@class,'MuiIconButton-root')]")
-//       .first();
-
-//     const classList = await heartButton.getAttribute("class");
-//     return classList?.includes("clicked") || false;
-//   } catch {
-//     return false;
-//   }
-// }
-
 async isProductFavorited(productName: string): Promise<boolean> {
     try {
       const productLocator = this.page.locator(
@@ -236,24 +178,6 @@ async isProductFavorited(productName: string): Promise<boolean> {
       return false;
     }
   }
-
-//   async getHeartButtonState(productName: string): Promise<string> {
-//     try {
-//       const productLocator = this.page.locator(".shelf-item, .product-item").filter({ hasText: productName });
-//       const heartButton = productLocator.locator("button.MuiButtonBase-root.MuiIconButton-root.Button").first();
-      
-//       // Get the class list to determine state
-//       const classList = await heartButton.getAttribute("class");
-      
-//       if (classList?.includes("clicked")) {
-//         return "favorited";
-//       } else {
-//         return "not-favorited";
-//       }
-//     } catch {
-//       return "unknown";
-//     }
-//   }
 
   // Validation methods
   async getHeartButtonState(productName: string): Promise<"favorited" | "not-favorited" | "unknown"> {
