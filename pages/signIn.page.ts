@@ -72,6 +72,12 @@ class SignInPage extends BasePage {
     await this.waitForSpinnerToHide(); // Using BasePage functionality
   }
 
+  // Complete sign in with verification
+  async signInAndVerify(username: string, password: string): Promise<boolean> {
+    await this.signInWithCredentials(username, password);
+    return await this.isUserLoggedIn();
+  }
+
   // Navigation and validation methods
   async navigateToSignInPage() {
     await this.page.goto("/signin");

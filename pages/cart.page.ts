@@ -185,6 +185,30 @@ class CartPage extends BasePage {
     await this.page.waitForTimeout(1000); // Give cart time to update
     await this.waitForSpinnerToHide();
   }
+
+  // Verify cart operations
+  async verifyProductAddedToCart(productName: string): Promise<boolean> {
+    try {
+      // Check cart count is greater than 0
+      const cartCount = await this.getCartItemCount();
+      if (cartCount <= 0) return false;
+
+      // Check if mini cart is visible
+      const isVisible = await this.isCartIndicatorVisible();
+      if (!isVisible) return false;
+
+      // Check if specific product is in cart
+      const cartItems = await this.getCartItemNames();
+      return cartItems.includes(productName);
+    } catch (error) {
+      console.error("Error verifying product in cart:", error);
+      return false;
+    }
+  }
+
+  async verifyMiniCartOpened(): Promise<boolean> {
+    return await this.isCartIndicatorVisible();
+  }
 }
 
 export default CartPage;
